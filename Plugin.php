@@ -166,4 +166,9 @@ class Plugin extends Base
     {
         return 'Show a diff instead of the newest version in the task activity stream';
     }
+    
+    public function getPluginHomepage()
+    {
+        return "https://github.com/Chaosmeister/KADIFF"
+    }
 }
