@@ -97,8 +97,8 @@ class MyFormatter extends ProjectActivityEventFormatter
         $events = array_reverse($this->query->findAll());
 
         $Diffs = array();
-        foreach ($events as &$event)
-        {
+
+        foreach ($events as &$event) {
             $event += $this->unserializeEvent($event['data']);
             unset($event['data']);
 
@@ -107,25 +107,29 @@ class MyFormatter extends ProjectActivityEventFormatter
 
             $eventname = $event['event_name'];
 
-            if ($eventname == 'task.create')
-            {
+            if ($eventname == 'task.create') {
                 $Diffs['description'] = $event['task']['description'];
-            }
-            else if ($eventname == 'comment.create')
-            {
+            } else if ($eventname == 'comment.create') {
                 $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
-            }
-            else if ($eventname == 'task.update')
-            {
-                $Diff = DiffHelper::calculate($Diffs['description'], $event['task']['description'], $rendererName, $differOptions, $rendererOptions);
-                $Diffs['description'] = $event['task']['description'];
-                $event['task']['description'] = $Diff;
-            }
-            else if ($eventname == 'comment.update')
-            {
-                $Diff = DiffHelper::calculate($Diffs['comment'][$event['comment']['id']], $event['comment']['comment'], $rendererName, $differOptions, $rendererOptions);
-                $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
-                $event['comment']['comment'] = $Diff;
+            } else if ($eventname == 'task.update') {
+                if (isset($event['changes']['description'])) {
+                    if (isset($Diffs['description'])) {
+                        $Diff = DiffHelper::calculate($Diffs['description'], $event['task']['description'], $rendererName, $differOptions, $rendererOptions);
+                        $Diffs['description'] = $event['task']['description'];
+                        $event['task']['description'] = $Diff;
+                        $event['changes']['description'] = "x"; // force changerecognition
+                    } else {
+                        $Diffs['description'] = $event['task']['description'];
+                    }
+                }
+            } else if ($eventname == 'comment.update') {
+                if (isset($Diffs['comment'][$event['comment']['id']])) {
+                    $Diff = DiffHelper::calculate($Diffs['comment'][$event['comment']['id']], $event['comment']['comment'], $rendererName, $differOptions, $rendererOptions);
+                    $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
+                    $event['comment']['comment'] = $Diff;
+                } else {
+                    $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
+                }
             }
 
             $event['event_content'] = $this->renderEvent($event);
@@ -141,8 +145,7 @@ class Plugin extends Base
     {
         $this->hook->on('template:layout:css', array('template' => 'plugins/KADIFF/diff-table.css'));
 
-        $this->container['projectActivityEventFormatter'] = $this->container->factory(function ($c)
-        {
+        $this->container['projectActivityEventFormatter'] = $this->container->factory(function ($c) {
             return new MyFormatter($c);
         });
     }
@@ -164,9 +167,9 @@ class Plugin extends Base
 
     public function getPluginDescription()
     {
-        return 'Show a diff instead of the newest version in the task activity stream';
+        return 'Show a diff instead of only the newest version in the task activity stream';
     }
-    
+
     public function getPluginHomepage()
     {
         return "https://github.com/Chaosmeister/KADIFF";
