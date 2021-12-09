@@ -107,28 +107,30 @@ class MyFormatter extends ProjectActivityEventFormatter
 
             $eventname = $event['event_name'];
 
+            $currentTask = &$Diffs[$event['task_id']];
+
             if ($eventname == 'task.create') {
-                $Diffs['description'] = $event['task']['description'];
+                $currentTask['description'] = $event['task']['description'];
             } else if ($eventname == 'comment.create') {
-                $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
+                $currentTask['comment'][$event['comment']['id']] = $event['comment']['comment'];
             } else if ($eventname == 'task.update') {
                 if (isset($event['changes']['description'])) {
-                    if (isset($Diffs['description'])) {
-                        $Diff = DiffHelper::calculate($Diffs['description'], $event['task']['description'], $rendererName, $differOptions, $rendererOptions);
-                        $Diffs['description'] = $event['task']['description'];
+                    if (isset($currentTask['description'])) {
+                        $Diff = DiffHelper::calculate($currentTask['description'], $event['task']['description'], $rendererName, $differOptions, $rendererOptions);
+                        $currentTask['description'] = $event['task']['description'];
                         $event['task']['description'] = $Diff;
                         $event['changes']['description'] = "x"; // force changerecognition
                     } else {
-                        $Diffs['description'] = $event['task']['description'];
+                        $currentTask['description'] = $event['task']['description'];
                     }
                 }
             } else if ($eventname == 'comment.update') {
-                if (isset($Diffs['comment'][$event['comment']['id']])) {
+                if (isset($currentTask['comment'][$event['comment']['id']])) {
                     $Diff = DiffHelper::calculate($Diffs['comment'][$event['comment']['id']], $event['comment']['comment'], $rendererName, $differOptions, $rendererOptions);
-                    $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
+                    $currentTask['comment'][$event['comment']['id']] = $event['comment']['comment'];
                     $event['comment']['comment'] = $Diff;
                 } else {
-                    $Diffs['comment'][$event['comment']['id']] = $event['comment']['comment'];
+                    $currentTask['comment'][$event['comment']['id']] = $event['comment']['comment'];
                 }
             }
 
