@@ -126,7 +126,7 @@ class MyFormatter extends ProjectActivityEventFormatter
                 }
             } else if ($eventname == 'comment.update') {
                 if (isset($currentTask['comment'][$event['comment']['id']])) {
-                    $Diff = DiffHelper::calculate($Diffs['comment'][$event['comment']['id']], $event['comment']['comment'], $rendererName, $differOptions, $rendererOptions);
+                    $Diff = DiffHelper::calculate($currentTask['comment'][$event['comment']['id']], $event['comment']['comment'], $rendererName, $differOptions, $rendererOptions);
                     $currentTask['comment'][$event['comment']['id']] = $event['comment']['comment'];
                     $event['comment']['comment'] = $Diff;
                 } else {
