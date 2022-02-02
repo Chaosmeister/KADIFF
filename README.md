@@ -3,7 +3,7 @@ Kanboard - activitystream diff
 
 powered by [php-diff](https://github.com/jfcherng/php-diff)
 
-### This plugin requires [markdown plus](https://github.com/creecros/MarkdownPlus) to render the html table
+### This plugin requires [MarkdownPlus](https://github.com/creecros/MarkdownPlus) or `define('MARKDOWN_ESCAPE_HTML', false);` in the config.php to render the html table
 
 This plugin shows a side-by-side diff if applicable in the activity streams:
 
